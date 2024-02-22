@@ -27,7 +27,7 @@ pygame.init()
 screen = pygame.display.set_mode((800, 500))
 clock = pygame.time.Clock()  # Used for FPS control
 running = True
-pygame.display.toggle_fullscreen()
+# pygame.display.toggle_fullscreen()
 font = pygame.freetype.SysFont('Arial', 150)
 
 # Display Library Helper Function
@@ -40,12 +40,21 @@ def drawTextCentered(surface, text, text_size, color):
 
 
 # Declare Class Instances
-leftWheel = Wheel(23)
-#rightWheel = Wheel(3)
-#rearLeftWheel = Wheel(None)  # !!
-#rearRightWheel = Wheel(None)  # !!
+# leftWheel = Wheel(23)
+# rightWheel = Wheel(3)
+# rearLeftWheel = Wheel(None)  # !!
+# rearRightWheel = Wheel(None)  # !!
 
 lastTransmit = datetime.now()
+
+# placeholder vars for testing warning lights
+cvTemp = 75
+portalTemp = 75
+# Warning lights timing
+warningTimeClockStart = datetime.now()
+warningTempDrawn = False
+warningBlinkRate = 0.25
+
 
 # Main Loop
 while running:
@@ -56,27 +65,45 @@ while running:
             running = False
 
     # Check each wheel to see if it has triggered
-    leftWheel.checkStatus()
+#    leftWheel.checkStatus()
 #    rightWheel.checkStatus()
 #    rearLeftWheel.checkStatus()
 #    rearRightWheel.checkStatus()
 
-    # Only update the screen display if the speed has changed, seems to crash the code
-    # if speed != speedTemp:
-    #   speedTemp = speed
-
     # Draw to screen
     screen.fill("lightblue")
-    drawTextCentered(screen, str(leftWheel.speed) , 100, (0, 0, 0))
+
+    # hypothetical temperature warning code, blink every second
+    if cvTemp > 70:
+        if datetime.now().second % 2 == 0:
+            pygame.draw.circle(screen, (255, 165, 0), (700, 425), 35)
+        else:
+            pass
+
+    # more customizable code for warning lights, can change blink rate
+    if portalTemp >= 70:
+        if not warningTempDrawn:
+            warningTimeClockStart = datetime.now()
+
+        difference = (datetime.now() - warningTimeClockStart).total_seconds()
+
+        if difference <= warningBlinkRate:
+            pygame.draw.circle(screen, (255, 0, 0), (620, 425), 35)
+            if not warningTempDrawn:
+                warningTimeClock = datetime.now()
+                warningTempDrawn = True
+        elif difference >= warningBlinkRate*2:
+            warningTempDrawn = False
+
+    drawTextCentered(screen, str("10"), 100, (0, 0, 0))
     pygame.display.flip()
     clock.tick(60)  # limits FPS to 60
-
 
     # Transmit Data -- only do it every 5 seconds or so (measure amount of time sense last sent)
     currentTime = datetime.now()
     delta = currentTime - lastTransmit
     if delta.total_seconds() >= 5.0:
-        #transmit("Sending message")
+        # transmit("Sending message")
         lastTransmit = datetime.now()
 
 pygame.quit()
