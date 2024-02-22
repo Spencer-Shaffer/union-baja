@@ -2,7 +2,9 @@ import pygame
 import RPi.GPIO as gpio
 from wheel import *
 from datetime import datetime
+from pytz import timezone
 import serial
+import os.path
 
 # GPIO Setup -- might not need
 gpio.setmode(gpio.BCM)
@@ -15,6 +17,14 @@ ser.baudrate = 115200
 ser.port = '/dev/ttyS0'
 ser.open()
 
+def txt_create(save_path):
+    #when calling the function, change the param to the path name to the USB drive
+    #**make sure to use double backslashes in the path and make it a string
+    
+    name_of_file = datetime.now(timezone("EST")).strftime('%b_%d_%y_%H%M')
+    completeName = os.path.join(save_path, name_of_file + ".txt")         
+
+    file1 = open(completeName, "w")
 
 def transmit(msg):
     msg = msg
